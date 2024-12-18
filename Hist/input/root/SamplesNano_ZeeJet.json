@@ -1,0 +1,20 @@
+{
+    "2024": {
+        "MC": {
+            "MC_ZeeJet_2024_DYJetsToLLM50": "/DYto2L-4Jets_MLL-50_TuneCP5_13p6TeV_madgraphMLM-pythia8/Run3Winter24NanoAOD-JMENanoV14_133X_mcRun3_2024_realistic_v10_ext2-v1/NANOAODSIM"
+        },
+        "Data": {
+            "Data_ZeeJet_2024B_EGamma1":      "/EGamma1/Run2024B-PromptReco-v1/NANOAOD",
+            "Data_ZeeJet_2024C_EGamma1":      "/EGamma1/Run2024C-PromptReco-v1/NANOAOD",
+            "Data_ZeeJet_2024D_EGamma1":      "/EGamma1/Run2024D-PromptReco-v1/NANOAOD",
+            "Data_ZeeJet_2024E_EGamma1v1":    "/EGamma1/Run2024E-PromptReco-v1/NANOAOD",
+            "Data_ZeeJet_2024E_EGamma1v2":    "/EGamma1/Run2024E-PromptReco-v2/NANOAOD",
+            "Data_ZeeJet_2024F_EGamma1":      "/EGamma1/Run2024F-PromptReco-v1/NANOAOD",
+            "Data_ZeeJet_2024G_EGamma1":      "/EGamma1/Run2024G-PromptReco-v1/NANOAOD",
+            "Data_ZeeJet_2024H_EGamma1":      "/EGamma1/Run2024H-PromptReco-v1/NANOAOD",
+            "Data_ZeeJet_2024I_EGamma1v1":    "/EGamma1/Run2024I-PromptReco-v1/NANOAOD",
+            "Data_ZeeJet_2024I_EGamma1v2":    "/EGamma1/Run2024I-PromptReco-v2/NANOAOD"
+        }
+    }
+}
+
