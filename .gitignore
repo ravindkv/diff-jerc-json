@@ -8,10 +8,10 @@ Hist/corrlib
 Hist/obj
 Hist/output
 Hist/input/root/json
-Hist/input/jerc/json
+Hist/input/jerc/*.json
 Hist/condor/tmpSub
 Hist/condor/__pycache__
-Hist/input/__pycache__
+Hist/input/root/__pycache__
 
 Hist/tmp
 Hist/files

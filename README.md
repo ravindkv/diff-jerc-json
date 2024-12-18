@@ -3,7 +3,7 @@
 
 ## Introduction
 
-The **Hist** package is designed to produce histogram files from NanoAOD trees. It utilizes a set of common classes and histogramming classes to process data and generate the desired histograms. 
+The **Hist** package is designed to produce histogram files from NanoAOD trees. It utilizes a set of common classes and histogramming classes to process data and generate the desired histograms. It also produces quick plots. 
 
 ## Prerequisites
 
@@ -62,7 +62,7 @@ source ~/.bashrc
 
 ```bash
 cd input/root
-python3 getFiles.py
+python3 getRootFiles.py
 ```
 
 ### 2. Get the two JERC json to be compared
@@ -89,7 +89,7 @@ cd ../..
 make -j4
 ```
 
-This will compile all the necessary C++ files and create object files in the `obj` directory. The main executable `runMain` will be created in the root directory.
+This will compile all the necessary C++ files and create object files in the `obj` directory. The main executable `runMain` will be created in the current directory.
 
 ## Running the Code Locally
 
@@ -119,7 +119,7 @@ python plotDiff.py --root_file output/Data_ZeeJet_2024C_EGamma1_Hist_1of1000.roo
 - **Main Executable**: All classes are included in `main.cpp`, which is compiled into the `runMain` executable.
 - **Object Files**: Compiled object files are stored in the `obj` directory.
 - **CorrectionLib Package**: The `corrlib` directory contains the CorrectionLib package required for corrections in the analysis.
-- **Input Directory**: The `input` directory contains JSON paths of skimmed NanoAOD trees.
+- **Input Directory**: The `input/root` directory contains JSON paths of NanoAOD trees.
 - **Output Directory**: The `output` directory stores the resulting histogram files.
 
 ## Contact
