@@ -110,7 +110,9 @@ The output root files are stored in the output directory.
 
 
 ```bash
-python plotDiff.py --root_file output/Data_ZeeJet_2024C_EGamma1_Hist_1of1000.root --metadata input/jerc/metadata.json 
+cd ../Plot
+python plotGivenEta.py ../Hist/output/Data_ZeeJet_2024I_EGamma1v2_Hist_1of10.root out_Eta.pdf
+python plotGivenPt.py ../Hist/output/Data_ZeeJet_2024I_EGamma1v2_Hist_1of10.root out_Pt.pdf
 ```
 
 

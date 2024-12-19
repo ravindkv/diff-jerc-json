@@ -155,3 +155,16 @@ TDirectory* Helper::createTDirectory(TDirectory* origDir, const std::string& dir
 
     return currentDir; // The final directory
 }
+
+// Utility function to format numbers
+std::string Helper::formatNumber(double num) {
+    std::ostringstream oss;
+    oss << std::fixed << std::setprecision(1) << num; // One decimal place
+    std::string formatted = oss.str();
+    // Replace '.' with 'p' and remove trailing '.0'
+    std::replace(formatted.begin(), formatted.end(), '.', 'p');
+    if (formatted.back() == 'p') {
+        formatted.pop_back(); // Remove trailing 'p'
+    }
+    return formatted;
+}

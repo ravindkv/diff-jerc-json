@@ -1,4 +1,4 @@
-#include "FillHist.h"
+#include "HistGivenEta.h"
 #include <fstream>
 #include <stdexcept>
 #include <iostream>
@@ -6,24 +6,19 @@
 #include "TDirectory.h"
 #include "TROOT.h"
 
-FillHist::FillHist(const std::string& metadataJsonPath,
-                   int nPtBins, double ptMin, double ptMax)
-    : metadataJsonPath_(metadataJsonPath),
-      nPtBins_(nPtBins),
-      ptMin_(ptMin),
-      ptMax_(ptMax)
+HistGivenEta::HistGivenEta(TDirectory *origDir, const std::string& directoryName,const std::string& metadataJsonPath)
 {
-    // We delay the opening of the TFile until initialize()
+    initialize(origDir, directoryName, metadataJsonPath);
 }
 
-FillHist::~FillHist() {
+HistGivenEta::~HistGivenEta() {
 }
 
-void FillHist::initialize() {
+void HistGivenEta::initialize(TDirectory *origDir, const std::string& directoryName, const std::string& metadataJsonPath){
     // Read metadata JSON
-    std::ifstream inFile(metadataJsonPath_);
+    std::ifstream inFile(metadataJsonPath);
     if (!inFile.is_open()) {
-        throw std::runtime_error("FillHist::initialize: Unable to open metadata JSON: " + metadataJsonPath_);
+        throw std::runtime_error("HistGivenEta::initialize: Unable to open metadata JSON: " + metadataJsonPath_);
     }
 
     nlohmann::json meta;
@@ -40,6 +35,10 @@ void FillHist::initialize() {
     //   ...
     // }
 
+    // Use the Helper method to get or create the directory
+    std::string dirName = "HistGivenEta/"+ directoryName;
+    TDirectory* newDir = Helper::createTDirectory(origDir, dirName);
+    newDir->cd();
     // Extract the baseKeys, create histograms for each
     for (auto it = meta.begin(); it != meta.end(); ++it) {
         std::string baseKey = it.key();
@@ -49,15 +48,17 @@ void FillHist::initialize() {
         createHistogramsFor(baseKey);
     }
 
-    std::cout << "[FillHist] Initialized " << baseKeys_.size() << " baseKeys from " << metadataJsonPath_ << std::endl;
+    std::cout << "[HistGivenEta] Initialized " << baseKeys_.size() << " baseKeys from " << metadataJsonPath_ << std::endl;
+    std::cout << "Initialized HistGivenEta histograms in directory: " << dirName << std::endl;
+    origDir->cd();
 }
 
-void FillHist::createHistogramsFor(const std::string& baseKey) {
+void HistGivenEta::createHistogramsFor(const std::string& baseKey) {
     // We'll store them in histMap_[baseKey].
     // The names will be something like: hCorrV1_{baseKey}, hCorrV2_{baseKey}, pDiff_{baseKey}
     // Make sure to sanitize baseKey for histogram names if it has special characters.
 
-    HistogramSet hset;
+    HistGivenEtaSet hset;
     std::string safeKey = baseKey;
     // Replace special characters to avoid ROOT conflicts
     for (auto &c: safeKey) {
@@ -66,6 +67,11 @@ void FillHist::createHistogramsFor(const std::string& baseKey) {
         if (c == ' ') c = '_';
     }
     
+    std::vector<double>  binsPt = {
+        15, 25, 35, 50, 75, 100, 130, 170, 230, 300, 500, 1000, 4500
+    };
+    const int nPt = binsPt.size() - 1;
+
     int binN = 100;
     double binMin = -0.5;
     double binMax =  0.5;
@@ -93,20 +99,28 @@ void FillHist::createHistogramsFor(const std::string& baseKey) {
     hset.hCorrV2->GetXaxis()->SetTitle("Correction Factor (V2)");
     hset.hCorrV2->GetYaxis()->SetTitle("Events");
 
-    // TProfile for the difference: (V1 - V2) vs Jet pT
-    hset.pDiff = new TProfile(
-        ("pDiff_" + safeKey).c_str(),
-        (baseKey + " : (V1 - V2) vs pT").c_str(),
-        nPtBins_, ptMin_, ptMax_
+    // TProfile 
+    hset.pCorrV1 = new TProfile(
+        ("pCorrV1_" + safeKey).c_str(),
+        (baseKey + " : CorrV1 vs #eta").c_str(),
+        nPt, binsPt.data() 
     );
-    hset.pDiff->GetXaxis()->SetTitle("Jet p_{T} [GeV]");
-    hset.pDiff->GetYaxis()->SetTitle("V1 - V2");
+    hset.pCorrV1->GetXaxis()->SetTitle("Jet #eta");
+    hset.pCorrV1->GetYaxis()->SetTitle("Mean of CorrV1");
+
+    hset.pCorrV2 = new TProfile(
+        ("pCorrV2_" + safeKey).c_str(),
+        (baseKey + " : CorrV2 vs #eta").c_str(),
+        nPt, binsPt.data() 
+    );
+    hset.pCorrV2->GetXaxis()->SetTitle("Jet #eta");
+    hset.pCorrV2->GetYaxis()->SetTitle("Mean of CorrV2");
 
     // Store in map
     histMap_[baseKey] = hset;
 }
 
-void FillHist::fill(const std::string& baseKey, double jetPt, const std::vector<double>& corrFactors) {
+void HistGivenEta::fill(const std::string& baseKey, double jetPt, const std::vector<double>& corrFactors) {
     // Expect corrFactors.size() >= 2 (V1, V2). 
     // If the user wants more versions, they'd handle it similarly.
 
@@ -125,16 +139,13 @@ void FillHist::fill(const std::string& baseKey, double jetPt, const std::vector<
 
     double corrV1 = corrFactors[0];
     double corrV2 = corrFactors[1];
-    double diff   = 100*(corrV1 - corrV2)/corrV1;
 
-    // Fill the TH1Ds vs Jet pT, but the Y value is the correction factor
-    // We're essentially making a profile, but in TH1D form: 
-    //   x-axis = pT, weight = correction factor
-    // Typically, you'd just store pT of "corrected jets," but let's follow the request literally.
+    // Fill TH1 
     hset.hCorrV1->Fill(corrV1);
     hset.hCorrV2->Fill(corrV2);
 
-    // Fill TProfile with (diff) vs Jet pT
-    hset.pDiff->Fill(jetPt, diff);
+    // Fill TProfile 
+    hset.pCorrV1->Fill(jetPt, corrV1);
+    hset.pCorrV2->Fill(jetPt, corrV2);
 }
 

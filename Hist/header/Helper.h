@@ -39,6 +39,8 @@ public:
     // Method to create or get nested directories
     static TDirectory* createTDirectory(TDirectory* origDir, const std::string& directoryPath);
 
+    // Utility function to format numbers
+    static std::string formatNumber(double num);
 };
     
 #endif // HELPER_H
