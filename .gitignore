@@ -17,3 +17,5 @@ Hist/tmp
 Hist/files
 Hist/pileup
 Hist/rootfiles
+
+Plot/*.pdf

@@ -100,7 +100,7 @@ def main(root_file_path, output_file_path):
             print(f"Warning: '{pt_dir_name}' is not a directory. Skipping.")
             continue
 
-        tagName = "RunE_DATA_L2L3Residual_AK4PFPuppi"
+        tagName = "RunG_DATA_L2L3Residual_AK4PFPuppi"
         pCorrV1 = pt_dir.Get(f"pCorrV1_{tagName}")
         pCorrV2 = pt_dir.Get(f"pCorrV2_{tagName}")
 
@@ -177,7 +177,8 @@ def main(root_file_path, output_file_path):
         latexTit.SetTextColor(ROOT.kBlack)
         latexTit.DrawLatex(0.15, 0.95, pt_dir_name)
 
-        statV1 = f"pCorrV1: Entries={int(entries1)}, Mean = {mean1:.3f}"
+        #statV1 = f"pCorrV1: Entries={int(entries1)}, Mean = {mean1:.3f}"
+        statV1 = "Winter24Prompt24_RunG_V2_DATA_L2L3Residual_AK4PFPuppi"
         latexV1 = ROOT.TLatex()
         latexV1.SetNDC()
         latexV1.SetTextFont(43)
@@ -185,7 +186,8 @@ def main(root_file_path, output_file_path):
         latexV1.SetTextColor(ROOT.kRed)
         latexV1.DrawLatex(0.15, 0.90, statV1)
 
-        statV2 = f"pCorrV2:Entries={int(entries2)}, Mean = {mean2:.3f}"
+        #statV2 = f"pCorrV2:Entries={int(entries2)}, Mean = {mean2:.3f}"
+        statV2 = "Winter24Prompt24_V3_DATA_L2L3Residual_AK4PFPuppi" 
         latexV2 = ROOT.TLatex()
         latexV2.SetNDC()
         latexV2.SetTextFont(43)

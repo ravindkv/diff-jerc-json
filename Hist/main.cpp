@@ -1,6 +1,5 @@
 #include "RunZeeJet.h"
 #include "SkimTree.h"
-#include "EventPick.h"
 #include "ScaleObject.h"
 #include "GlobalFlag.h"
 
@@ -72,7 +71,7 @@ int main(int argc, char* argv[]) {
 
           std::cout << "\nFor file: " << jsonFile << std::endl;
           for (auto& element : js.items()) {
-            std::cout << " ./runMain -o " << element.key() << "_Hist_1of100.root" << std::endl;
+            std::cout << "./runMain -o " << element.key() << "_Hist_1of100.root" << std::endl;
           }
         }
         return 0;
@@ -112,7 +111,6 @@ int main(int argc, char* argv[]) {
     std::shared_ptr<ScaleObject> scaleObj = std::make_shared<ScaleObject>(globalFlag);
     
     try {
-        scaleObj->loadMetadata(metadataJsonPath);
         //scaleObj->setInputs();
         //scaleObj->loadJetVetoRef();
         //scaleObj->loadJetL1FastJetRef();
@@ -138,20 +136,6 @@ int main(int argc, char* argv[]) {
         return EXIT_FAILURE;  // Exit with failure code
     }
 
-    std::cout << "\n--------------------------------------" << std::endl;
-    std::cout << " Set and load EventPick.cpp" << std::endl;
-    std::cout << "--------------------------------------" << std::endl;
-    
-    // Pass GlobalFlag reference to EventPick
-    auto eventP = std::make_unique<EventPick>(globalFlag);
-
-    std::cout << "\n--------------------------------------" << std::endl;
-    std::cout << " Set and load ObjectPick.cpp" << std::endl;
-    std::cout << "--------------------------------------" << std::endl;
-    
-    // Pass GlobalFlag reference to ObjectPick
-    auto objP = std::make_unique<ObjectPick>(globalFlag);
-
     // Output directory setup
     std::string outDir = "output";
     mkdir(outDir.c_str(), S_IRWXU);
@@ -164,7 +148,7 @@ int main(int argc, char* argv[]) {
     if (globalFlag.getChannel() == GlobalFlag::Channel::ZeeJet) {
         std::cout << "==> Running ZeeJet" << std::endl;
         auto zeeJet = std::make_unique<RunZeeJet>(globalFlag);
-        zeeJet->Run(skimT, eventP.get(), objP.get(), scaleObj.get(), metadataJsonPath, fout.get());
+        zeeJet->Run(skimT, scaleObj.get(), metadataJsonPath, fout.get());
     }
   return 0;
 }

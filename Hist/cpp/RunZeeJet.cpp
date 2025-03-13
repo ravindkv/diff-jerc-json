@@ -11,7 +11,7 @@ RunZeeJet::RunZeeJet(GlobalFlag& globalFlags)
     :globalFlags_(globalFlags) {
 }
 
-auto RunZeeJet::Run(std::shared_ptr<SkimTree>& skimT, EventPick *eventP, ObjectPick *objP, ScaleObject *scaleObject, const std::string& metadataJsonPath, TFile *fout) -> int{
+auto RunZeeJet::Run(std::shared_ptr<SkimTree>& skimT, ScaleObject *scaleObject, const std::string& metadataJsonPath, TFile *fout) -> int{
    
     assert(fout && !fout->IsZombie());
     fout->cd();
@@ -93,35 +93,59 @@ auto RunZeeJet::Run(std::shared_ptr<SkimTree>& skimT, EventPick *eventP, ObjectP
             if (skimT->Jet_jetId[i] < 6) continue; // TightLepVeto
             if (skimT->Jet_pt[i] < 10) continue;
         
-            std::vector<double> corrFactors = {0.0, 0.0};
             std::vector<double> inputs = {};
+            // For each metadata entry, compute the correction factors
             for (auto it = meta.begin(); it != meta.end(); ++it) {
-                std::string baseKey = it.key();  
-                if (baseKey.find("_ScaleFactor_") != std::string::npos){
-                    corrFactors = scaleObject->evaluateJerSF(baseKey, skimT->Jet_eta[i], skimT->Jet_pt[i],"nom");
-                }
-                else {
-                    if (baseKey.find("_L1FastJet_") != std::string::npos){
-                        inputs  = {skimT->Jet_area[i],skimT->Jet_eta[i], skimT->Jet_pt[i], skimT->Rho};
+                std::string baseKey = it.key();
+                std::vector<double> corrFactors;
+            
+                // For each version of the correction (each [jsonFile, tag] pair)
+                for (auto &version : it.value()) {
+                    double corr = 1.0;
+                    if (version.size() < 2) continue; // Skip invalid entries.
+                    std::string jsonFile     = version.at(0).get<std::string>();
+                    std::string correctionTag = version.at(1).get<std::string>();
+    
+                    if (baseKey.find("_ScaleFactor_") != std::string::npos) {
+                        corr = scaleObject->evaluateJerSF(jsonFile, correctionTag, skimT->Jet_eta[i], skimT->Jet_pt[i], "nom");
                     }
-                    else if (baseKey.find("_L2Relative_") != std::string::npos){
-                        inputs  = {skimT->Jet_eta[i], skimT->Jet_phi[i], skimT->Jet_pt[i]};
+                    else{
+                        if (baseKey.find("_L1FastJet_") != std::string::npos){
+                            inputs  = {skimT->Jet_area[i],skimT->Jet_eta[i], skimT->Jet_pt[i], skimT->Rho};
+                        }
+                        else if (baseKey.find("_L2Relative_") != std::string::npos){
+                            inputs  = {skimT->Jet_eta[i], skimT->Jet_phi[i], skimT->Jet_pt[i]};
+                        }
+                        else if (baseKey.find("_L3Absolute_") != std::string::npos){
+                            inputs  = {skimT->Jet_eta[i], skimT->Jet_pt[i]};
+                        }
+                        else if (baseKey.find("_L2L3Residual_") != std::string::npos){
+                            // Choose the input vector based on the JSON file.
+                            if (jsonFile.find("jet_jerc_V2.json") != std::string::npos) {
+                                inputs  = {skimT->Jet_eta[i], skimT->Jet_pt[i]};
+                            }
+                            else if (jsonFile.find("V3_jet_jerc.json") != std::string::npos) {
+                                inputs = { static_cast<double>(skimT->run), skimT->Jet_eta[i], skimT->Jet_pt[i] };
+                            }
+                        }
+                        else if (baseKey.find("_PtResolution_") != std::string::npos){
+                            inputs  = {skimT->Jet_eta[i], skimT->Jet_pt[i], skimT->Rho};
+                        }
+                        else {
+                            inputs  = {skimT->Jet_eta[i], skimT->Jet_pt[i]};
+                        }
+                        // Evaluate this version's correction.
+                        corr = scaleObject->evaluateCorrection(jsonFile, correctionTag, inputs);
+                        if(skimT->Jet_pt[i] < 30 && std::abs(skimT->Jet_eta[i]) > 2.043 && std::abs(skimT->Jet_eta[i]) < 2.964){
+                            if (jsonFile.find("V3_jet_jerc.json") != std::string::npos) {
+                                std::cout<<skimT->Jet_pt[i]<<", "<<std::abs(skimT->Jet_eta[i])<<", "<<corr<<std::endl;
+                            }
+                        }
                     }
-                    else if (baseKey.find("_L3Absolute_") != std::string::npos){
-                        inputs  = {skimT->Jet_eta[i], skimT->Jet_pt[i]};
-                    }
-                    else if (baseKey.find("_L2L3Residual_") != std::string::npos){
-                        inputs  = {skimT->Jet_eta[i], skimT->Jet_pt[i]};
-                    }
-                    else if (baseKey.find("_PtResolution_") != std::string::npos){
-                        inputs  = {skimT->Jet_eta[i], skimT->Jet_pt[i], skimT->Rho};
-                    }
-                    else {
-                        inputs  = {skimT->Jet_eta[i], skimT->Jet_pt[i]};
-                    }
-                    corrFactors = scaleObject->evaluateCorrections(baseKey, inputs);
+                    corrFactors.push_back(corr);
                 }
                 
+            
                 // Determine eta bin
                 int etaBin = -1;
                 double absEta = std::abs(skimT->Jet_eta[i]);

@@ -259,6 +259,10 @@ void SkimTree::loadTree() {
     }
 
     fChain_->SetBranchStatus("*", false);
+    fChain_->SetBranchStatus("run", true);
+    fChain_->SetBranchStatus("luminosityBlock", true);
+    fChain_->SetBranchStatus("event", true);
+
     fChain_->SetBranchAddress("run", &run);
     fChain_->SetBranchAddress("luminosityBlock", &luminosityBlock);
     fChain_->SetBranchAddress("event", &event);
@@ -283,57 +287,6 @@ void SkimTree::loadTree() {
 	fChain_->SetBranchAddress("Jet_pt"    , &Jet_pt);
 	fChain_->SetBranchAddress("Jet_rawFactor", &Jet_rawFactor);
 	fChain_->SetBranchAddress("Jet_jetId", &Jet_jetId);
-	
-
-	//--------------------------------------- 
-	// Electron (for DiEleJet)
-	//--------------------------------------- 
-	fChain_->SetBranchStatus("HLT_Ele23_Ele12_CaloIdL*", true); 
-	fChain_->SetBranchAddress("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ", &HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ);
-	fChain_->SetBranchAddress("HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL", &HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL);
-	
-	fChain_->SetBranchStatus("Rho_fixedGridRhoFastjetAll",true);
-	fChain_->SetBranchAddress("Rho_fixedGridRhoFastjetAll", &Rho);
-	
-	fChain_->SetBranchStatus("Flag_goodVertices",true);
-	fChain_->SetBranchAddress("Flag_goodVertices",&Flag_goodVertices);
-	fChain_->SetBranchStatus("Flag_globalSuperTightHalo2016Filter",true);
-	fChain_->SetBranchAddress("Flag_globalSuperTightHalo2016Filter", &Flag_globalSuperTightHalo2016Filter);
-	fChain_->SetBranchStatus("Flag_HBHENoiseFilter",true);
-	fChain_->SetBranchAddress("Flag_HBHENoiseFilter", &Flag_HBHENoiseFilter);
-	fChain_->SetBranchStatus("Flag_HBHENoiseIsoFilter",true);
-	fChain_->SetBranchAddress("Flag_HBHENoiseIsoFilter", &Flag_HBHENoiseIsoFilter);
-	fChain_->SetBranchStatus("Flag_EcalDeadCellTriggerPrimitiveFilter",true);
-	fChain_->SetBranchAddress("Flag_EcalDeadCellTriggerPrimitiveFilter", &Flag_EcalDeadCellTriggerPrimitiveFilter);
-	fChain_->SetBranchStatus("Flag_BadPFMuonFilter",true);
-	fChain_->SetBranchAddress("Flag_BadPFMuonFilter",&Flag_BadPFMuonFilter);
-	fChain_->SetBranchStatus("Flag_eeBadScFilter",true);
-	fChain_->SetBranchAddress("Flag_eeBadScFilter", &Flag_eeBadScFilter);
-	if(year_ == GlobalFlag::Year::Year2017 || year_ == GlobalFlag::Year::Year2018){
-	    fChain_->SetBranchStatus("Flag_ecalBadCalibFilter",true);
-	    fChain_->SetBranchAddress("Flag_ecalBadCalibFilter",&Flag_ecalBadCalibFilter);
-	}
-	  
-	
-	if (isMC_){ 
-		fChain_->SetBranchStatus("genWeight", true); 
-		fChain_->SetBranchStatus("Pileup_nTrueInt", true); 
-		fChain_->SetBranchStatus("nGenJet", true); 
-		fChain_->SetBranchStatus("GenJet_eta", true); 
-		fChain_->SetBranchStatus("GenJet_mass", true); 
-		fChain_->SetBranchStatus("GenJet_phi", true); 
-		fChain_->SetBranchStatus("GenJet_pt", true); 
-		fChain_->SetBranchStatus("GenJet_partonFlavour", true); 
-
-		fChain_->SetBranchAddress("genWeight", &genWeight);
-		fChain_->SetBranchAddress("Pileup_nTrueInt", &Pileup_nTrueInt);
-		fChain_->SetBranchAddress("nGenJet", &nGenJet);
-		fChain_->SetBranchAddress("GenJet_eta", &GenJet_eta);
-		fChain_->SetBranchAddress("GenJet_mass", &GenJet_mass);
-		fChain_->SetBranchAddress("GenJet_phi", &GenJet_phi);
-		fChain_->SetBranchAddress("GenJet_pt", &GenJet_pt);
-		fChain_->SetBranchAddress("GenJet_partonFlavour", &GenJet_partonFlavour);
-	} // isMC_
 }
 
 auto SkimTree::getEntries() const -> Long64_t {
