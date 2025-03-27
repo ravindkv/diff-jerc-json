@@ -100,7 +100,7 @@ def main(root_file_path, output_file_path):
             print(f"Warning: '{pt_dir_name}' is not a directory. Skipping.")
             continue
 
-        tagName = "RunG_DATA_L2L3Residual_AK4PFPuppi"
+        tagName = "RunH_DATA_L2L3Residual_AK4PFPuppi"
         pCorrV1 = pt_dir.Get(f"pCorrV1_{tagName}")
         pCorrV2 = pt_dir.Get(f"pCorrV2_{tagName}")
 
@@ -177,7 +177,7 @@ def main(root_file_path, output_file_path):
         latexTit.DrawLatex(0.15, 0.95, pt_dir_name)
 
         #statV1 = f"pCorrV1: Entries={int(entries1)}, Mean = {mean1:.3f}"
-        statV1 = "Winter24Prompt24_RunG_V2_DATA_L2L3Residual_AK4PFPuppi"
+        statV1 = "Winter24Prompt24_RunH_V2_DATA_L2L3Residual_AK4PFPuppi"
         latexV1 = ROOT.TLatex()
         latexV1.SetNDC()
         latexV1.SetTextFont(43)

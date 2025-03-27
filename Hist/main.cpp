@@ -21,7 +21,8 @@ int main(int argc, char* argv[]) {
     std::cerr << "Error: No arguments provided. Use -h for help." << std::endl;
     return 1;
   }
-  const std::string& metadataJsonPath = "input/jerc/metadata.json";
+  //const std::string& metadataJsonPath = "input/jerc/metadata_jec.json";
+  const std::string& metadataJsonPath = "input/jerc/metadata_l2rel.json";
 
 
   std::string jsonDir = "input/root/json/";

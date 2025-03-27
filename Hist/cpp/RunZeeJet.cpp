@@ -79,7 +79,8 @@ auto RunZeeJet::Run(std::shared_ptr<SkimTree>& skimT, ScaleObject *scaleObject, 
     auto startClock = std::chrono::high_resolution_clock::now();
     Long64_t nentries = skimT->getEntries();
     Helper::initProgress(nentries);
-
+    int run = 0;
+    int newRun = 0;
     for (Long64_t jentry = 0; jentry < nentries; ++jentry) {
         if (globalFlags_.isDebug() && jentry > globalFlags_.getNDebug()) break;
         Helper::printProgress(jentry, nentries, startClock, totalTime);
@@ -88,11 +89,15 @@ auto RunZeeJet::Run(std::shared_ptr<SkimTree>& skimT, ScaleObject *scaleObject, 
         if (ientry < 0) break; 
         //if (ientry > 10000) break; 
         skimT->getChain()->GetTree()->GetEntry(ientry);
+        run = skimT->run;
+        if (newRun != run){
+            newRun = run;
+            std::cout<<newRun <<std::endl;
+        }
 
         for (int i = 0; i < skimT->nJet; ++i) {
             if (skimT->Jet_jetId[i] < 6) continue; // TightLepVeto
-            if (skimT->Jet_pt[i] < 10) continue;
-        
+            if (skimT->Jet_pt[i] < 15) continue;
             std::vector<double> inputs = {};
             // For each metadata entry, compute the correction factors
             for (auto it = meta.begin(); it != meta.end(); ++it) {
@@ -124,7 +129,7 @@ auto RunZeeJet::Run(std::shared_ptr<SkimTree>& skimT, ScaleObject *scaleObject, 
                             if (jsonFile.find("jet_jerc_V2.json") != std::string::npos) {
                                 inputs  = {skimT->Jet_eta[i], skimT->Jet_pt[i]};
                             }
-                            else if (jsonFile.find("V3_jet_jerc.json") != std::string::npos) {
+                            else if (jsonFile.find("jet_jerc_V3.json") != std::string::npos) {
                                 inputs = { static_cast<double>(skimT->run), skimT->Jet_eta[i], skimT->Jet_pt[i] };
                             }
                         }
@@ -136,9 +141,9 @@ auto RunZeeJet::Run(std::shared_ptr<SkimTree>& skimT, ScaleObject *scaleObject, 
                         }
                         // Evaluate this version's correction.
                         corr = scaleObject->evaluateCorrection(jsonFile, correctionTag, inputs);
-                        if(skimT->Jet_pt[i] < 30 && std::abs(skimT->Jet_eta[i]) > 2.043 && std::abs(skimT->Jet_eta[i]) < 2.964){
-                            if (jsonFile.find("V3_jet_jerc.json") != std::string::npos) {
-                                std::cout<<skimT->Jet_pt[i]<<", "<<std::abs(skimT->Jet_eta[i])<<", "<<corr<<std::endl;
+                        if(skimT->Jet_pt[i] < 30 && std::abs(skimT->Jet_eta[i]) > 2.650 && std::abs(skimT->Jet_eta[i]) < 2.853){
+                            if (jsonFile.find("jet_jerc_V3.json") != std::string::npos) {
+                                //std::cout<<skimT->Jet_pt[i]<<", "<<std::abs(skimT->Jet_eta[i])<<", "<<corr<<std::endl;
                             }
                         }
                     }
