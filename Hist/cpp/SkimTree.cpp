@@ -77,6 +77,8 @@ void SkimTree::setInputJsonPath(const std::string& inDir) {
         year = "2018";
     else if (year_ == GlobalFlag::Year::Year2024)
         year = "2024";
+    else if (year_ == GlobalFlag::Year::Year2025)
+        year = "2025";
     else {
         throw std::runtime_error("Error: Provide correct year in SkimTree::setInputJsonPath()");
     }

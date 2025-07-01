@@ -5,7 +5,8 @@ eosHistDir = "root://hip-cms-se.csc.fi/store/user/rverma/diff-jerc-json/Hist"
 
 # Years and Channels to process
 Years = [
-    '2024'
+    #'2024'
+    '2025'
 ]
 
 Channels = [

@@ -13,7 +13,8 @@ public:
         Year2016Post,
         Year2017,
         Year2018,
-        Year2024
+        Year2024,
+        Year2025
     };
 
     enum class Era {
@@ -42,6 +43,8 @@ public:
      	Era2024G,
      	Era2024H,
      	Era2024I,
+
+     	Era2025C,
     };
 
     enum class Channel {

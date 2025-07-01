@@ -1,5 +1,5 @@
 #include "ScaleObject.h"
-#include "Helper.h" // Not shown, presumably your own utilities
+#include "Helper.h" 
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -34,9 +34,20 @@ correction::Correction::Ref ScaleObject::getCorrectionRef(const std::string& jso
     }
 }
 
+// Updated evaluateCorrection with debug prints
 double ScaleObject::evaluateCorrection(const std::string& jsonFile,
                                          const std::string& correctionTag,
                                          const std::vector<double>& inputs) const {
+    // Print inputs if debugging
+    if (isDebug_) {
+        std::cout<< "[DEBUG] inputs=["; 
+        for (size_t i = 0; i < inputs.size(); ++i) {
+            std::cout << inputs[i];
+            if (i + 1 < inputs.size()) std::cout << ", ";
+        }
+        std::cout << "]" << std::endl;
+    }
+
     // Define the variant type expected by correctionlib
     using CorrType = std::variant<int, double, std::string>;
     std::vector<CorrType> formattedInputs;
@@ -49,8 +60,12 @@ double ScaleObject::evaluateCorrection(const std::string& jsonFile,
     correction::Correction::Ref corrRef = getCorrectionRef(jsonFile, correctionTag);
 
     try {
-        // Evaluate and return the correction factor
-        return corrRef->evaluate(formattedInputs);
+        // Evaluate the correction factor
+        double result = corrRef->evaluate(formattedInputs);
+        if (isDebug_) {
+            std::cout << "result: " << result << std::endl;
+        }
+        return result;
     } catch (const std::exception &e) {
         std::cerr << "Error: evaluateCorrection for json=" << jsonFile
                   << " tag=" << correctionTag << ": " << e.what() << std::endl;
@@ -58,11 +73,18 @@ double ScaleObject::evaluateCorrection(const std::string& jsonFile,
     }
 }
 
+// Updated evaluateJerSF with debug prints
 double ScaleObject::evaluateJerSF(const std::string& jsonFile,
                                   const std::string& correctionTag,
                                   const double& jetEta,
                                   const double& jetPt,
                                   const std::string &syst) const {
+    if (isDebug_) {
+        std::cout << "[DEBUG] inputs: jetEta=" << jetEta
+                  << ", jetPt=" << jetPt
+                  << ", syst='" << syst << "'" << std::endl;
+    }
+
     using CorrType = std::variant<int, double, std::string>;
     std::vector<CorrType> formattedInputs;
     // Fill the inputs: note that syst is a string, while jetEta and jetPt are doubles.
@@ -75,14 +97,15 @@ double ScaleObject::evaluateJerSF(const std::string& jsonFile,
 
     try {
         // Evaluate and return the scale factor.
-        return corrRef->evaluate(formattedInputs);
+        double result = corrRef->evaluate(formattedInputs);
+        if (isDebug_) {
+            std::cout << "[DEBUG] result: " << result << std::endl;
+        }
+        return result;
     } catch (const std::exception &e) {
         std::cerr << "Error: evaluateJerSF for json=" << jsonFile
                   << " tag=" << correctionTag << ": " << e.what() << std::endl;
         return 1.0;
     }
 }
-
-
-
 

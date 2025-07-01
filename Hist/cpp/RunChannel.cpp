@@ -1,4 +1,5 @@
-#include "RunZeeJet.h"
+#include "RunChannel.h"
+#include "ScaleObject.h"
 
 #include "Helper.h"
 #include "HistGivenPt.h"
@@ -7,11 +8,11 @@
 #include "nlohmann/json.hpp"
    
 // Constructor implementation
-RunZeeJet::RunZeeJet(GlobalFlag& globalFlags)
+RunChannel::RunChannel(GlobalFlag& globalFlags)
     :globalFlags_(globalFlags) {
 }
 
-auto RunZeeJet::Run(std::shared_ptr<SkimTree>& skimT, ScaleObject *scaleObject, const std::string& metadataJsonPath, TFile *fout) -> int{
+auto RunChannel::Run(std::shared_ptr<SkimTree>& skimT, const std::string& metadataJsonPath, TFile *fout) -> int{
    
     assert(fout && !fout->IsZombie());
     fout->cd();
@@ -26,6 +27,9 @@ auto RunZeeJet::Run(std::shared_ptr<SkimTree>& skimT, ScaleObject *scaleObject, 
     const int nEtaBins = 4;
     const double etaBinEdges[nEtaBins + 1] = {0.0, 1.3, 2.5, 3.0, 5.0};
     
+    // Pass GlobalFlag reference to ScaleObject
+    std::shared_ptr<ScaleObject> scaleObject = std::make_shared<ScaleObject>(globalFlags_);
+
     //------------------------------------
     // Initialize Hists 
     //------------------------------------
@@ -90,13 +94,16 @@ auto RunZeeJet::Run(std::shared_ptr<SkimTree>& skimT, ScaleObject *scaleObject, 
         //if (ientry > 10000) break; 
         skimT->getChain()->GetTree()->GetEntry(ientry);
         run = skimT->run;
+        if(globalFlags_.isDebug()){
+            std::cout<<"\n ======= Run = "<< run<<", Event = "<<skimT->event <<"=======\n";
+        }
         if (newRun != run){
             newRun = run;
             std::cout<<newRun <<std::endl;
         }
 
         for (int i = 0; i < skimT->nJet; ++i) {
-            if (skimT->Jet_jetId[i] < 6) continue; // TightLepVeto
+            //if (skimT->Jet_jetId[i] < 6) continue; // TightLepVeto
             if (skimT->Jet_pt[i] < 15) continue;
             std::vector<double> inputs = {};
             // For each metadata entry, compute the correction factors
@@ -110,6 +117,11 @@ auto RunZeeJet::Run(std::shared_ptr<SkimTree>& skimT, ScaleObject *scaleObject, 
                     if (version.size() < 2) continue; // Skip invalid entries.
                     std::string jsonFile     = version.at(0).get<std::string>();
                     std::string correctionTag = version.at(1).get<std::string>();
+                    if(globalFlags_.isDebug()){
+                        //std::cout << "[DEBUG] jsonFile='" << jsonFile
+                        //<< "', tag='" << correctionTag << '\n';
+                        std::cout << "\n[DEBUG] tag='" << correctionTag<< ", iJet = "<<i<<'\n';
+                    }
     
                     if (baseKey.find("_ScaleFactor_") != std::string::npos) {
                         corr = scaleObject->evaluateJerSF(jsonFile, correctionTag, skimT->Jet_eta[i], skimT->Jet_pt[i], "nom");
@@ -125,13 +137,16 @@ auto RunZeeJet::Run(std::shared_ptr<SkimTree>& skimT, ScaleObject *scaleObject, 
                             inputs  = {skimT->Jet_eta[i], skimT->Jet_pt[i]};
                         }
                         else if (baseKey.find("_L2L3Residual_") != std::string::npos){
+                            inputs = { static_cast<double>(skimT->run), skimT->Jet_eta[i], skimT->Jet_pt[i] };
+                            /*
                             // Choose the input vector based on the JSON file.
-                            if (jsonFile.find("jet_jerc_V2.json") != std::string::npos) {
+                            if (jsonFile.find("Winter25Prompt25_V1_jet_jerc.json") != std::string::npos) {
                                 inputs  = {skimT->Jet_eta[i], skimT->Jet_pt[i]};
                             }
-                            else if (jsonFile.find("jet_jerc_V3.json") != std::string::npos) {
+                            else if (jsonFile.find("Winter24Prompt24_V3_jet_jerc.json") != std::string::npos) {
                                 inputs = { static_cast<double>(skimT->run), skimT->Jet_eta[i], skimT->Jet_pt[i] };
                             }
+                            */
                         }
                         else if (baseKey.find("_PtResolution_") != std::string::npos){
                             inputs  = {skimT->Jet_eta[i], skimT->Jet_pt[i], skimT->Rho};
@@ -141,11 +156,6 @@ auto RunZeeJet::Run(std::shared_ptr<SkimTree>& skimT, ScaleObject *scaleObject, 
                         }
                         // Evaluate this version's correction.
                         corr = scaleObject->evaluateCorrection(jsonFile, correctionTag, inputs);
-                        if(skimT->Jet_pt[i] < 30 && std::abs(skimT->Jet_eta[i]) > 2.650 && std::abs(skimT->Jet_eta[i]) < 2.853){
-                            if (jsonFile.find("jet_jerc_V3.json") != std::string::npos) {
-                                //std::cout<<skimT->Jet_pt[i]<<", "<<std::abs(skimT->Jet_eta[i])<<", "<<corr<<std::endl;
-                            }
-                        }
                     }
                     corrFactors.push_back(corr);
                 }

@@ -1,5 +1,5 @@
-#ifndef HISTZEEJET_H
-#define HISTZEEJET_H
+
+#pragma once
 
 #include <iostream>
 #include <cmath>
@@ -16,16 +16,15 @@
 
 // User-defined includes
 #include "SkimTree.h"
-#include "ScaleObject.h"
 #include "GlobalFlag.h"
 
-class RunZeeJet{
+class RunChannel{
 public:
     // Constructor accepting a reference to GlobalFlag
-    explicit RunZeeJet(GlobalFlag& globalFlags);
-    ~RunZeeJet() = default;
+    explicit RunChannel(GlobalFlag& globalFlags);
+    ~RunChannel() = default;
 
-    int Run(std::shared_ptr<SkimTree>& skimT, ScaleObject* scaleObject, const std::string& metadataJsonPath, TFile* fout);
+    int Run(std::shared_ptr<SkimTree>& skimT, const std::string& metadataJsonPath, TFile* fout);
 
 private:
     // Reference to GlobalFlag instance
@@ -34,5 +33,4 @@ private:
     // Add any private member variables or methods here if needed
 };
 
-#endif // HISTZEEJET_H
 

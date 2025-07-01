@@ -27,6 +27,8 @@ void GlobalFlag::parseFlags() {
         year_ = Year::Year2018;
     } else if (outName_.find("2024") != std::string::npos) {
         year_ = Year::Year2024;
+    } else if (outName_.find("2025") != std::string::npos) {
+        year_ = Year::Year2025;
     }
 
     // Parsing Era
@@ -80,6 +82,8 @@ void GlobalFlag::parseFlags() {
         era_ = Era::Era2024H;
     } else if (outName_.find("2024I") != std::string::npos) {
         era_ = Era::Era2024I;
+    } else if (outName_.find("2025C") != std::string::npos) {
+        era_ = Era::Era2025C;
 	}
 
     // Parsing Data or MC
@@ -144,6 +148,9 @@ void GlobalFlag::printFlags() const {
             break;
         case Year::Year2024:
             std::cout << "Year = 2024" << '\n';
+            break;
+        case Year::Year2025:
+            std::cout << "Year = 2025" << '\n';
             break;
         default:
             std::cout << "Year = NONE" << '\n';
@@ -217,6 +224,9 @@ void GlobalFlag::printFlags() const {
             break;
         case Era::Era2024I:
             std::cout << "Era = 2024I" << '\n';
+            break;
+        case Era::Era2025C:
+            std::cout << "Era = 2025C" << '\n';
             break;
         default:
             std::cout << "Era = NONE" << '\n';

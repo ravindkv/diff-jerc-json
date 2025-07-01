@@ -1,6 +1,5 @@
-#include "RunZeeJet.h"
+#include "RunChannel.h"
 #include "SkimTree.h"
-#include "ScaleObject.h"
 #include "GlobalFlag.h"
 
 #include <sys/stat.h>
@@ -22,7 +21,7 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   //const std::string& metadataJsonPath = "input/jerc/metadata_jec.json";
-  const std::string& metadataJsonPath = "input/jerc/metadata_l2rel.json";
+  const std::string& metadataJsonPath = "input/jerc/metadata_2025.json";
 
 
   std::string jsonDir = "input/root/json/";
@@ -88,7 +87,7 @@ int main(int argc, char* argv[]) {
     
     // Initialize GlobalFlag instance
     GlobalFlag globalFlag(outName);
-    globalFlag.setDebug(false);
+    globalFlag.setDebug(true);
     globalFlag.setNDebug(1000);
     globalFlag.printFlags();  
 
@@ -108,35 +107,7 @@ int main(int argc, char* argv[]) {
     std::cout << " Set and load ScaleObject.cpp" << std::endl;
     std::cout << "--------------------------------------" << std::endl;
     
-    // Pass GlobalFlag reference to ScaleObject
-    std::shared_ptr<ScaleObject> scaleObj = std::make_shared<ScaleObject>(globalFlag);
     
-    try {
-        //scaleObj->setInputs();
-        //scaleObj->loadJetVetoRef();
-        //scaleObj->loadJetL1FastJetRef();
-        //scaleObj->loadJetL2RelativeRef();
-        //scaleObj->loadJetL2L3ResidualRef();
-        //scaleObj->loadJerResoRef();
-        //scaleObj->loadJerSfRef();
-       // scaleObj->loadPuRef();
-
-        // Use the GlobalFlag instance for conditional checks
-        if (globalFlag.getChannel() == GlobalFlag::Channel::GamJet) {  // Scale and Smearing
-            //scaleObj->loadPhoSsRef();
-            //scaleObj->loadEleSsRef();
-        }
-        if (globalFlag.getChannel() == GlobalFlag::Channel::ZmmJet) { 
-            //scaleObj->loadMuRochRef();
-        }
-        if (globalFlag.isData()) {
-            //scaleObj->loadLumiJson();
-        }
-    } catch (const std::runtime_error& e) {
-        std::cerr << "Critical error: " << e.what() << std::endl;
-        return EXIT_FAILURE;  // Exit with failure code
-    }
-
     // Output directory setup
     std::string outDir = "output";
     mkdir(outDir.c_str(), S_IRWXU);
@@ -146,11 +117,8 @@ int main(int argc, char* argv[]) {
     std::cout << " Loop over events and fill Histos" << std::endl;
     std::cout << "--------------------------------------" << std::endl;
     
-    if (globalFlag.getChannel() == GlobalFlag::Channel::ZeeJet) {
-        std::cout << "==> Running ZeeJet" << std::endl;
-        auto zeeJet = std::make_unique<RunZeeJet>(globalFlag);
-        zeeJet->Run(skimT, scaleObj.get(), metadataJsonPath, fout.get());
-    }
+    auto runCh = std::make_unique<RunChannel>(globalFlag);
+    runCh->Run(skimT, metadataJsonPath, fout.get());
   return 0;
 }
 
