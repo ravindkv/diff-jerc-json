@@ -21,7 +21,8 @@ int main(int argc, char* argv[]) {
     return 1;
   }
   //const std::string& metadataJsonPath = "input/jerc/metadata_jec.json";
-  const std::string& metadataJsonPath = "input/jerc/metadata_2025.json";
+  //const std::string& metadataJsonPath = "input/jerc/metadata_2025.json";
+  const std::string& metadataJsonPath = "input/jerc/metadata_2024_V8MvsV9M.json";
 
 
   std::string jsonDir = "input/root/json/";
@@ -87,7 +88,7 @@ int main(int argc, char* argv[]) {
     
     // Initialize GlobalFlag instance
     GlobalFlag globalFlag(outName);
-    globalFlag.setDebug(true);
+    globalFlag.setDebug(false);
     globalFlag.setNDebug(1000);
     globalFlag.printFlags();  
 

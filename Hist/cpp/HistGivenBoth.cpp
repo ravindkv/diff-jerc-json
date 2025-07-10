@@ -55,7 +55,7 @@ void HistGivenBoth::initialize(TDirectory *origDir, const std::string& directory
 
 void HistGivenBoth::createHistogramsFor(const std::string& baseKey) {
     // We'll store them in histMap_[baseKey].
-    // The names will be something like: hCorrV1_{baseKey}, hCorrV2_{baseKey}, pDiff_{baseKey}
+    // The names will be something like: hCorrOld_{baseKey}, hCorrNew_{baseKey}, pDiff_{baseKey}
     // Make sure to sanitize baseKey for histogram names if it has special characters.
 
     HistGivenBothSet hset;
@@ -82,21 +82,21 @@ void HistGivenBoth::createHistogramsFor(const std::string& baseKey) {
         binMin = 0.5;
         binMax = 1.5;
     }
-    hset.hCorrV1 = new TH1D(
-        ("hCorrV1_" + safeKey).c_str(),
+    hset.hCorrOld = new TH1D(
+        ("hCorrOld_" + safeKey).c_str(),
         (baseKey + " : V1 Correction Factor").c_str(),
         binN, binMin, binMax
     );
-    hset.hCorrV1->GetXaxis()->SetTitle("Correction Factor (V1)");
-    hset.hCorrV1->GetYaxis()->SetTitle("Events");
+    hset.hCorrOld->GetXaxis()->SetTitle("Correction Factor (V1)");
+    hset.hCorrOld->GetYaxis()->SetTitle("Events");
 
-    hset.hCorrV2 = new TH1D(
-        ("hCorrV2_" + safeKey).c_str(),
+    hset.hCorrNew = new TH1D(
+        ("hCorrNew_" + safeKey).c_str(),
         (baseKey + " : V2 Correction Factor").c_str(),
         binN, binMin, binMax
     );
-    hset.hCorrV2->GetXaxis()->SetTitle("Correction Factor (V2)");
-    hset.hCorrV2->GetYaxis()->SetTitle("Events");
+    hset.hCorrNew->GetXaxis()->SetTitle("Correction Factor (V2)");
+    hset.hCorrNew->GetYaxis()->SetTitle("Events");
 
     // Store in map
     histMap_[baseKey] = hset;
@@ -122,8 +122,8 @@ void HistGivenBoth::fill(const std::string& baseKey, const std::vector<double>& 
     double corrV1 = corrFactors[0];
     double corrV2 = corrFactors[1];
 
-    hset.hCorrV1->Fill(corrV1);
-    hset.hCorrV2->Fill(corrV2);
+    hset.hCorrOld->Fill(corrV1);
+    hset.hCorrNew->Fill(corrV2);
 
 }
 

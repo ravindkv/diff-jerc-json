@@ -55,7 +55,7 @@ void HistGivenPt::initialize(TDirectory *origDir, const std::string& directoryNa
 
 void HistGivenPt::createHistogramsFor(const std::string& baseKey) {
     // We'll store them in histMap_[baseKey].
-    // The names will be something like: hCorrV1_{baseKey}, hCorrV2_{baseKey}, pDiff_{baseKey}
+    // The names will be something like: hCorrOld_{baseKey}, hCorrNew_{baseKey}, pDiff_{baseKey}
     // Make sure to sanitize baseKey for histogram names if it has special characters.
 
     HistGivenPtSet hset;
@@ -92,38 +92,38 @@ void HistGivenPt::createHistogramsFor(const std::string& baseKey) {
         binMin = 0.5;
         binMax = 1.5;
     }
-    hset.hCorrV1 = new TH1D(
-        ("hCorrV1_" + safeKey).c_str(),
+    hset.hCorrOld = new TH1D(
+        ("hCorrOld_" + safeKey).c_str(),
         (baseKey + " : V1 Correction Factor").c_str(),
         binN, binMin, binMax
     );
-    hset.hCorrV1->GetXaxis()->SetTitle("Correction Factor (V1)");
-    hset.hCorrV1->GetYaxis()->SetTitle("Events");
+    hset.hCorrOld->GetXaxis()->SetTitle("Correction Factor (V1)");
+    hset.hCorrOld->GetYaxis()->SetTitle("Events");
 
-    hset.hCorrV2 = new TH1D(
-        ("hCorrV2_" + safeKey).c_str(),
+    hset.hCorrNew = new TH1D(
+        ("hCorrNew_" + safeKey).c_str(),
         (baseKey + " : V2 Correction Factor").c_str(),
         binN, binMin, binMax
     );
-    hset.hCorrV2->GetXaxis()->SetTitle("Correction Factor (V2)");
-    hset.hCorrV2->GetYaxis()->SetTitle("Events");
+    hset.hCorrNew->GetXaxis()->SetTitle("Correction Factor (V2)");
+    hset.hCorrNew->GetYaxis()->SetTitle("Events");
 
     // TProfile 
-    hset.pCorrV1 = new TProfile(
-        ("pCorrV1_" + safeKey).c_str(),
-        (baseKey + " : CorrV1 vs #eta").c_str(),
+    hset.pCorrOld = new TProfile(
+        ("pCorrOld_" + safeKey).c_str(),
+        (baseKey + " : CorrOld vs #eta").c_str(),
         nEta, binsEta.data() 
     );
-    hset.pCorrV1->GetXaxis()->SetTitle("Jet #eta");
-    hset.pCorrV1->GetYaxis()->SetTitle("Mean of CorrV1");
+    hset.pCorrOld->GetXaxis()->SetTitle("Jet #eta");
+    hset.pCorrOld->GetYaxis()->SetTitle("Mean of CorrOld");
 
-    hset.pCorrV2 = new TProfile(
-        ("pCorrV2_" + safeKey).c_str(),
-        (baseKey + " : CorrV2 vs #eta").c_str(),
+    hset.pCorrNew = new TProfile(
+        ("pCorrNew_" + safeKey).c_str(),
+        (baseKey + " : CorrNew vs #eta").c_str(),
         nEta, binsEta.data() 
     );
-    hset.pCorrV2->GetXaxis()->SetTitle("Jet #eta");
-    hset.pCorrV2->GetYaxis()->SetTitle("Mean of CorrV2");
+    hset.pCorrNew->GetXaxis()->SetTitle("Jet #eta");
+    hset.pCorrNew->GetYaxis()->SetTitle("Mean of CorrNew");
 
     // Store in map
     histMap_[baseKey] = hset;
@@ -150,11 +150,11 @@ void HistGivenPt::fill(const std::string& baseKey, double jetEta, const std::vec
     double corrV2 = corrFactors[1];
 
     // Fill TH1 
-    hset.hCorrV1->Fill(corrV1);
-    hset.hCorrV2->Fill(corrV2);
+    hset.hCorrOld->Fill(corrV1);
+    hset.hCorrNew->Fill(corrV2);
 
     // Fill TProfile 
-    hset.pCorrV1->Fill(jetEta, corrV1);
-    hset.pCorrV2->Fill(jetEta, corrV2);
+    hset.pCorrOld->Fill(jetEta, corrV1);
+    hset.pCorrNew->Fill(jetEta, corrV2);
 }
 

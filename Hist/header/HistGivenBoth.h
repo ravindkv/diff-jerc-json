@@ -20,8 +20,8 @@
  *   - TProfile for the difference (V1 - V2)
  */
 struct HistGivenBothSet {
-    TH1D* hCorrV1 = nullptr;
-    TH1D* hCorrV2 = nullptr;
+    TH1D* hCorrOld = nullptr;
+    TH1D* hCorrNew = nullptr;
 };
 
 class HistGivenBoth {

@@ -13,10 +13,10 @@
 #include "nlohmann/json.hpp"
 
 struct HistGivenEtaSet {
-    TH1D* hCorrV1 = nullptr;
-    TH1D* hCorrV2 = nullptr;
-    TProfile* pCorrV1 = nullptr;
-    TProfile* pCorrV2 = nullptr;
+    TH1D* hCorrOld = nullptr;
+    TH1D* hCorrNew = nullptr;
+    TProfile* pCorrOld = nullptr;
+    TProfile* pCorrNew = nullptr;
 };
 
 class HistGivenEta {
